@@ -9,7 +9,7 @@ import Contact from './ContactComponent';
 import DishDetail from './DishDetailComponent';
 import About from './AboutComponent';
 import { connect } from 'react-redux';
-import { postComment, fetchDishes, fetchPromos, fetchComments } from '../redux/ActionCreators';
+import { postComment, fetchDishes, fetchPromos, fetchComments, fetchLeaders, postFeedback } from '../redux/ActionCreators';
 import { actions } from 'react-redux-form';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
@@ -36,18 +36,21 @@ const mapDispatchToProps = dispatch => ({
     },
   fetchPromos: () => {
       dispatch(fetchPromos());
- },
+  },
+  fetchLeaders: () => {
+    dispatch(fetchLeaders());
+  },
+  postFeedback: (firstname, lastname, telnum, email, agree, contactType, message) => 
+    dispatch(postFeedback(firstname, lastname, telnum, email, agree, contactType, message))
 });
 
 class Main extends Component {
-  constructor(props) {
-    super(props);
-  }
 
   componentDidMount() {
     this.props.fetchDishes();
     this.props.fetchComments();
     this.props.fetchPromos();
+    this.props.fetchLeaders();
   }
 
   render() {
@@ -62,7 +65,9 @@ class Main extends Component {
           }
           promosLoading={this.props.promotions.isLoading}
           promosErrMsg={this.props.promotions.errMsg}
-          leader={this.props.leaders.filter(leader => leader.featured)[0]}
+          leader={this.props.leaders.leaders.filter(leader => leader.featured)[0]}
+          leadersLoading={this.props.leaders.isLoading}
+          leadersErrMsg={this.props.leaders.errMsg}
         />
       );
     };
@@ -103,7 +108,7 @@ class Main extends Component {
                 exact
                 path='/contactus'
                 component={() => (
-                  <Contact resetFeedbackForm={this.props.resetFeedbackForm} />
+                  <Contact resetFeedbackForm={this.props.resetFeedbackForm} postFeedback={this.props.postFeedback}/>
                 )}
               />
               <Route
